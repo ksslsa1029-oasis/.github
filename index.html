@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 정적 핫딜 & 검색 파인더</title>
+    
+    <!-- 1. Tailwind CSS CDN: 디자인을 쉽게 적용합니다. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. React, Babel CDN: 컴포넌트 구조를 사용하기 위해 필요합니다. -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f6f9;
+        }
+        /* 광고 블록 애니메이션 */
+        .ad-block {
+            transition: transform 0.3s ease;
+        }
+        .ad-block:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- React App이 마운트될 Root 요소 -->
+    <div id="root"></div>
+
+    <!-- 3. React/JSX 코드 (type="text/babel" 필수) -->
+    <script type="text/babel">
+        const { useState, useMemo, Fragment } = React;
+        const ReactDOM = window.ReactDOM;
+
+        // ------------------------------------
+        // 1. 정적 모의 데이터 (수동으로 업데이트되는 '잡지 내용')
+        // ------------------------------------
+        const MOCK_DEALS_DATA = [
+            // 이 데이터가 웹사이트에 표시되며, 수정하려면 파일을 직접 고쳐야 합니다.
+            { id: 1, productName: 'LG 퓨리케어 공기청정기', currentPrice: 450000, originalPrice: 600000, sourceSite: '로켓와우 특가 (15% 추가 할인)', link: '#', savings: 150000, color: 'blue', image: 'https://placehold.co/80x80/3b82f6/ffffff?text=공기청정기' },
+            { id: 2, productName: '삼성 갤럭시 워치 6', currentPrice: 289000, originalPrice: 329000, sourceSite: '오늘의 골드박스 딜', link: '#', savings: 40000, color: 'red', image: 'https://placehold.co/80x80/ef4444/ffffff?text=워치' },
+            { id: 3, productName: '아이패드 프로 11인치 256GB', currentPrice: 998000, originalPrice: 1200000, sourceSite: '카드 무이자 24개월 (단독)', link: '#', savings: 202000, color: 'green', image: 'https://placehold.co/80x80/10b981/ffffff?text=아이패드' },
+            { id: 4, productName: '자취 필수템 미니 인덕션', currentPrice: 35000, originalPrice: 45000, sourceSite: '쿠폰 적용 최저가', link: '#', savings: 10000, color: 'blue', image: 'https://placehold.co/80x80/3b82f6/ffffff?text=인덕션' },
+            { id: 5, productName: '다이슨 무선 청소기 V15', currentPrice: 725000, originalPrice: 850000, sourceSite: '새벽 배송 단독 특가', link: '#', savings: 125000, color: 'red', image: 'https://placehold.co/80x80/ef4444/ffffff?text=청소기' },
+            { id: 6, productName: '커피머신 전자동', currentPrice: 800000, originalPrice: 1000000, sourceSite: '로켓와우 특가 (20% 추가 할인)', link: '#', savings: 200000, color: 'blue', image: 'https://placehold.co/80x80/3b82f6/ffffff?text=커피' },
+        ].sort((a, b) => b.savings - a.savings); // 할인액 기준으로 정렬
+
+
+        // ------------------------------------
+        // 2. 핵심 컴포넌트: 쿠팡 파트너스 광고 시뮬레이션
+        // ------------------------------------
+        const CoupangAd = ({ title, description, color, image, link }) => {
+            // (광고 디자인 코드)
+            const baseColor = color === 'blue' ? 'bg-blue-500 border-blue-700' : 
+                              color === 'red' ? 'bg-red-500 border-red-700' : 
+                              'bg-green-500 border-green-700';
+            const hoverColor = color === 'blue' ? 'hover:bg-blue-600' : 
+                               color === 'red' ? 'hover:bg-red-600' : 
+                               'hover:bg-green-600';
+
+            return (
+                <div className="ad-block p-4 rounded-xl shadow-xl border-2 bg-white transition duration-300 transform hover:scale-[1.01] my-6">
+                    <div className="text-center text-xs font-bold text-gray-500 mb-2">
+                        💰 쿠팡 파트너스 추천 상품 (광고)
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <img 
+                            src={image} 
+                            alt="[광고 상품 이미지]" 
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover mb-3 sm:mb-0"
+                        />
+                        <div className="flex-grow mx-4 text-center sm:text-left">
+                            <h3 className="text-lg font-extrabold text-gray-900">{title}</h3>
+                            <p className="text-sm text-gray-600">{description}</p>
+                        </div>
+                        <a 
+                            href={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`mt-3 sm:mt-0 px-6 py-3 text-white font-bold rounded-full transition duration-200 shadow-lg ${baseColor} ${hoverColor}`}
+                        >
+                            지금 쿠팡에서 확인
+                        </a>
+                    </div>
+                </div>
+            );
+        };
+
+        // ------------------------------------
+        // 3. 딜 항목 컴포넌트 (DealItem - 정적 표시)
+        // ------------------------------------
+
+        const DealItem = ({ deal }) => {
+            const savingsPercent = Math.round((deal.savings / deal.originalPrice) * 100);
+            const priceFormatted = deal.currentPrice.toLocaleString('ko-KR');
+            const originalPriceFormatted = deal.originalPrice.toLocaleString('ko-KR');
+
+            return (
+                <div className="bg-white p-6 rounded-xl shadow-md flex flex-col md:flex-row items-start md:items-center justify-between mb-4 transition duration-200 hover:shadow-lg border-l-4 border-red-500">
+                    
+                    {/* 상품 정보 */}
+                    <div className="flex items-center flex-grow mb-4 md:mb-0">
+                        <img 
+                            src={deal.image} 
+                            alt={`[${deal.productName} 이미지]`}
+                            className="w-16 h-16 object-cover rounded-md mr-4 shadow"
+                        />
+                        <div>
+                            <h3 className="text-xl font-bold text-gray-800 mb-1">{deal.productName}</h3>
+                            <div className="text-sm text-gray-500">
+                                <span className="line-through mr-2">쿠팡 정가: {originalPriceFormatted}원</span>
+                                <span className="font-bold text-red-600">{savingsPercent}% 할인</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 가격 및 버튼 */}
+                    <div className="flex flex-col items-end w-full md:w-auto">
+                        <p className="text-2xl font-extrabold text-blue-600">{priceFormatted}원</p>
+                        <p className="text-xs text-gray-700 font-semibold mb-2">적용 조건: {deal.sourceSite}</p>
+                        <a 
+                            href={deal.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition duration-200 shadow-md w-full text-center"
+                        >
+                            쿠팡에서 딜 보러가기 &rarr;
+                        </a>
+                    </div>
+                </div>
+            );
+        };
+
+        // ------------------------------------
+        // 4. 메인 앱 컴포넌트
+        // ------------------------------------
+
+        const App = () => {
+            // 정적 데이터를 초기 상태로 사용
+            const [deals] = useState(MOCK_DEALS_DATA);
+            const [searchTerm, setSearchTerm] = useState(''); 
+            
+            // 검색어 필터링 로직
+            const filteredDeals = useMemo(() => {
+                const lowerCaseSearch = searchTerm.toLowerCase();
+                if (!lowerCaseSearch) {
+                    return deals; 
+                }
+
+                return deals.filter(deal => {
+                    // 상품명 또는 핫딜 조건에 검색어가 포함되는지 확인
+                    return deal.productName.toLowerCase().includes(lowerCaseSearch) ||
+                           deal.sourceSite.toLowerCase().includes(lowerCaseSearch);
+                });
+            }, [deals, searchTerm]);
+
+
+            // 검색 실행 (입력 시 바로 필터링됨)
+            const handleSearchSubmit = () => {
+                console.log(`Searching for: ${searchTerm}`);
+            };
+
+
+            return (
+                <div className="min-h-screen bg-gray-100">
+                    {/* 헤더 */}
+                    <header className="bg-white shadow-lg">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                            <h1 className="text-3xl font-extrabold text-red-600 tracking-tight">
+                                🚀 정적 핫딜 & 검색 파인더
+                            </h1>
+                            <div className="text-right text-sm text-gray-700">
+                                <p className="font-semibold">빠른 로딩, 정적 데이터</p>
+                                <p className="text-xs text-gray-500">복잡한 서버 없이 즉시 실행됩니다.</p>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                            {/* 메인 콘텐츠 영역 (딜 목록 및 광고) */}
+                            <section className="lg:col-span-2 space-y-8">
+                                
+                                {/* 검색 입력창 및 버튼 (flex로 배치) */}
+                                <div className="mb-6 flex space-x-2">
+                                    <input
+                                        type="text"
+                                        placeholder="🔍 상품명 또는 핫딜 조건을 검색해보세요..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                handleSearchSubmit();
+                                            }
+                                        }}
+                                        className="flex-grow p-4 border-2 border-gray-300 rounded-xl focus:outline-none focus:border-red-500 shadow-inner text-lg"
+                                    />
+                                    <button
+                                        onClick={handleSearchSubmit}
+                                        className="bg-red-500 text-white p-4 rounded-xl font-bold hover:bg-red-600 transition duration-200 shadow-md flex items-center justify-center text-lg whitespace-nowrap"
+                                        title="검색 시작"
+                                    >
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                        <span className="hidden sm:inline ml-2">검색</span>
+                                    </button>
+                                </div>
+                                
+                                <h2 className="text-3xl font-bold text-gray-800 border-b pb-2">
+                                    오늘의 쿠팡 최고 할인율 딜 Top {filteredDeals.length}개
+                                </h2>
+                                
+                                {filteredDeals.length === 0 ? (
+                                     <div className="p-8 text-center bg-yellow-100 rounded-xl shadow-md">
+                                        <p className="text-xl font-semibold text-yellow-800">
+                                            검색 결과가 없습니다. 다른 검색어로 시도해보세요!
+                                        </p>
+                                    </div>
+                                ) : (
+                                    filteredDeals.map((deal, index) => (
+                                        <Fragment key={deal.id}>
+                                            <DealItem deal={deal} />
+                                            {/* 딜 2개마다 광고 삽입하여 노출 극대화 */}
+                                            {(index + 1) % 2 === 0 && (
+                                                <CoupangAd
+                                                    title={`놓치면 후회할 쿠팡의 특가 상품!`}
+                                                    description={`지금 가장 주목받는 베스트 상품을 확인하세요.`}
+                                                    color={index % 4 === 0 ? 'blue' : 'green'}
+                                                    image={`https://placehold.co/80x80/${index % 4 === 0 ? '3b82f6' : '10b981'}/ffffff?text=AD-${index + 1}`}
+                                                    link="#" // 실제 쿠팡 파트너스 링크 삽입
+                                                />
+                                            )}
+                                        </Fragment>
+                                    ))
+                                )}
+                            </section>
+
+                            {/* 사이드바 영역 (핵심 광고 배치) */}
+                            <aside className="space-y-8">
+                                {/* 핵심 광고 1: 대형 배너 - 딜과 연관된 카테고리 광고 */}
+                                <CoupangAd
+                                    title="⏰ 쿠팡 와우 회원 전용 특가"
+                                    description="와우 회원이시라면 지금 바로 확인하세요! (광고)"
+                                    color="red"
+                                    image="https://placehold.co/80x80/ef4444/ffffff?text=와우"
+                                    link="#" // 실제 쿠팡 파트너스 링크 삽입
+                                />
+
+                                {/* 추가 정보/공지 */}
+                                <div className="bg-white p-6 rounded-xl shadow-lg border-t-4 border-gray-300">
+                                    <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">이용 가이드</h3>
+                                    <ul className="text-sm text-gray-600 space-y-2 list-disc list-inside">
+                                        <li>가격 정보는 정기적으로 수동 업데이트됩니다.</li>
+                                        <li>'딜 보러가기' 클릭 시 쿠팡 상품 페이지로 이동합니다.</li>
+                                        <li>모든 광고 배너는 쿠팡 파트너스 활동으로 수수료를 받습니다.</li>
+                                    </ul>
+                                </div>
+                                
+                                {/* 김건우군 맞춤 광고 */}
+                                <CoupangAd
+                                    title="✨ 김건우군 추천! 곤충/생물 대백과"
+                                    description="7세 아들을 위한 곤충, 생물 피규어/도감 특가 (광고)"
+                                    color="blue"
+                                    image="https://placehold.co/80x80/3b82f6/ffffff?text=곤충"
+                                    link="#" 
+                                />
+
+                            </aside>
+
+                        </div>
+                    </main>
+
+                    {/* 푸터 */}
+                    <footer className="bg-gray-800 text-white mt-12">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-sm">
+                            <p>&copy; 2025 정적 핫딜 파인더. All rights reserved.</p>
+                            <p className="mt-2 text-xs text-gray-400">
+                                본 사이트에는 수익의 일환으로 쿠팡 파트너스 링크가 포함되어 있으며, 구매 시 일정액의 수수료를 제공받습니다.
+                            </p>
+                        </div>
+                    </footer>
+                </div>
+            );
+        }
+
+        // React 앱을 DOM에 마운트합니다.
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<App />);
+    </script>
+</body>
+</html>
