@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 정적 핫딜 & 검색 파인더</title>
     
+    <!-- OGP (Open Graph Protocol) 메타 태그 -->
+    <meta property="og:title" content="🔥 매일 갱신! 쿠팡 최고 할인율 핫딜 잡지 (오늘의 특가)">
+    <meta property="og:description" content="복잡한 검색 없이, 전문가가 고른 쿠팡 로켓와우, 골드박스 단독 딜만 모았습니다. (자동 업데이트됨)">
+    <meta property="og:image" content="https://placehold.co/1200x630/FF5733/ffffff?text=TODAY'S+COUPANG+HOT+DEAL+MAGAZINE">
+    <!-- !!! 실제 주소 형식으로 수정 완료. 이 주소를 사용자님의 실제 GitHub Pages 주소로 변경해야 합니다 !!! -->
+    <meta property="og:url" content="https://ksslsa1029-oasis.github.io/.github/"> 
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+
     <!-- 1. Tailwind CSS CDN: 디자인을 쉽게 적용합니다. -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 2. React, Babel CDN: 컴포넌트 구조를 사용하기 위해 필요합니다. -->
@@ -38,24 +47,26 @@
         const ReactDOM = window.ReactDOM;
 
         // ------------------------------------
-        // 1. 정적 모의 데이터 (수동으로 업데이트되는 '잡지 내용')
+        // 1. 정적 모의 데이터 (자동화 마커 포함)
         // ------------------------------------
-        const MOCK_DEALS_DATA = [
-            // 이 데이터가 웹사이트에 표시되며, 수정하려면 파일을 직접 고쳐야 합니다.
+        // update_deals.py 스크립트가 이 마커 사이의 데이터를 매일 교체합니다.
+        const MOCK_DEALS_DATA = [ // --- AUTOMATION_START ---
             { id: 1, productName: 'LG 퓨리케어 공기청정기', currentPrice: 450000, originalPrice: 600000, sourceSite: '로켓와우 특가 (15% 추가 할인)', link: '#', savings: 150000, color: 'blue', image: 'https://placehold.co/80x80/3b82f6/ffffff?text=공기청정기' },
             { id: 2, productName: '삼성 갤럭시 워치 6', currentPrice: 289000, originalPrice: 329000, sourceSite: '오늘의 골드박스 딜', link: '#', savings: 40000, color: 'red', image: 'https://placehold.co/80x80/ef4444/ffffff?text=워치' },
             { id: 3, productName: '아이패드 프로 11인치 256GB', currentPrice: 998000, originalPrice: 1200000, sourceSite: '카드 무이자 24개월 (단독)', link: '#', savings: 202000, color: 'green', image: 'https://placehold.co/80x80/10b981/ffffff?text=아이패드' },
             { id: 4, productName: '자취 필수템 미니 인덕션', currentPrice: 35000, originalPrice: 45000, sourceSite: '쿠폰 적용 최저가', link: '#', savings: 10000, color: 'blue', image: 'https://placehold.co/80x80/3b82f6/ffffff?text=인덕션' },
             { id: 5, productName: '다이슨 무선 청소기 V15', currentPrice: 725000, originalPrice: 850000, sourceSite: '새벽 배송 단독 특가', link: '#', savings: 125000, color: 'red', image: 'https://placehold.co/80x80/ef4444/ffffff?text=청소기' },
             { id: 6, productName: '커피머신 전자동', currentPrice: 800000, originalPrice: 1000000, sourceSite: '로켓와우 특가 (20% 추가 할인)', link: '#', savings: 200000, color: 'blue', image: 'https://placehold.co/80x80/3b82f6/ffffff?text=커피' },
-        ].sort((a, b) => b.savings - a.savings); // 할인액 기준으로 정렬
+        ]; // --- AUTOMATION_END ---
+        
+        // 할인액 기준으로 정렬합니다.
+        MOCK_DEALS_DATA.sort((a, b) => b.savings - a.savings); 
 
 
         // ------------------------------------
         // 2. 핵심 컴포넌트: 쿠팡 파트너스 광고 시뮬레이션
         // ------------------------------------
         const CoupangAd = ({ title, description, color, image, link }) => {
-            // (광고 디자인 코드)
             const baseColor = color === 'blue' ? 'bg-blue-500 border-blue-700' : 
                               color === 'red' ? 'bg-red-500 border-red-700' : 
                               'bg-green-500 border-green-700';
